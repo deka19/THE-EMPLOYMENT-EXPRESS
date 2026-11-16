@@ -94,9 +94,14 @@
 
         .section-label { font-size: 1.05rem; font-weight: 900; color: var(--brand-dark); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; border-bottom: 2px solid var(--brand-dark); padding-bottom: 8px;}
         
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+        /* ================= ALIGNMENT FIX FOR GRID INPUTS ================= */
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+        @media(min-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr 1fr; gap: 16px; }
+        }
+        
         .form-group { margin-bottom: 16px; display: flex; flex-direction: column; justify-content: flex-start; }
-        .form-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.8rem; color: #4B5563; text-transform: uppercase; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 0.8rem; color: #4B5563; text-transform: uppercase; line-height: 1.2; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff; transition: border-color 0.15s; }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--brand-dark); box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12); }
         .form-group textarea { resize: vertical; min-height: 80px; }
@@ -108,8 +113,9 @@
         .quick-chip { background: #E5E7EB; color: var(--brand-dark); border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .quick-chip:hover { background: var(--brand-dark); color: #fff; }
 
-        .dynamic-block { background: var(--brand-light); border: 1px solid var(--border-color); padding: 20px 15px 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
-        .remove-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9CA3AF; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: color 0.2s;}
+        /* FIXING THE DYNAMIC BLOCK CLOSE BUTTON OVERLAP */
+        .dynamic-block { background: var(--brand-light); border: 1px solid var(--border-color); padding: 30px 15px 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
+        .remove-btn { position: absolute; top: 12px; right: 15px; background: none; border: none; color: #9CA3AF; font-size: 1rem; font-weight: bold; cursor: pointer; transition: color 0.2s; line-height: 1; padding: 4px; display: flex; align-items: center; justify-content: center;}
         .remove-btn:hover { color: var(--brand-dark); }
         
         .add-btn { background: #E5E7EB; color: var(--brand-dark); border: none; padding: 12px 15px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; display: flex; justify-content: center; gap: 8px; align-items: center; }
@@ -117,11 +123,12 @@
         .add-bullet-btn { background: #fff; border: 1px dashed var(--brand-dark); color: var(--brand-dark); font-weight: 700; font-size: 0.85rem; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 5px; transition: background 0.2s; }
         .add-bullet-btn:hover { background: #F3F4F6; }
         
-        .bullet-engine { background: #fff; border: 1px solid #E5E7EB; padding: 15px; border-radius: 8px; margin-bottom: 10px; position: relative; }
-        .bullet-engine .remove-bullet { position: absolute; top: 8px; right: 10px; font-size: 0.7rem; color: #9CA3AF; cursor: pointer; background: none; border: none; font-weight: bold;}
+        /* BULLET ENGINE ALIGNMENT */
+        .bullet-engine { background: #fff; border: 1px solid #E5E7EB; padding: 25px 15px 15px; border-radius: 8px; margin-bottom: 10px; position: relative; }
+        .bullet-engine .remove-bullet { position: absolute; top: 8px; right: 10px; font-size: 0.85rem; color: #9CA3AF; cursor: pointer; background: none; border: none; font-weight: bold; padding: 4px;}
         .bullet-engine .remove-bullet:hover { color: var(--brand-dark); }
-        .bullet-engine label { font-size: 0.75rem; text-transform: none; font-weight: 600; color: #374151; margin-bottom: 4px; }
-        .bullet-engine input, .bullet-engine select { padding: 10px; font-size: 0.9rem; margin-bottom: 10px; }
+        .bullet-engine label { font-size: 0.75rem; text-transform: none; font-weight: 600; color: #374151; margin-bottom: 6px; display: block; }
+        .bullet-engine input, .bullet-engine select { padding: 10px; font-size: 0.9rem; margin-bottom: 10px; width: 100%; }
         .bullet-engine .form-group { margin-bottom: 0; }
         
         .step-nav { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
@@ -270,9 +277,9 @@
                             <option value="" disabled selected>Select...</option>
                             <option value="Fresher">Fresher</option>
                             <option value="1 Year">1 Year</option>
-                            <option value="2 Year">2 Years</option>
-                            <option value="3 Year">3 Years</option>
-                            <option value="4 Year">4 Years</option>
+                            <option value="2 Years">2 Years</option>
+                            <option value="3 Years">3 Years</option>
+                            <option value="4 Years">4 Years</option>
                             <option value="5 - 7 Years">5 - 7 Years</option>
                             <option value="7 - 10 Years">7 - 10 Years</option>
                             <option value="10+ Years">10+ Years</option>
