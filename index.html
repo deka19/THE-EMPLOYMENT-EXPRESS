@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Resume Builder | The Employment Express</title>
+    <style>
+        :root {
+            --brand-dark: #000000; 
+            --brand-light: #F9FAFB;
+            --wa-green: #25D366;
+            --border-color: #E5E7EB;
+            --text-muted: #6B7280;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+        body { background-color: var(--brand-light); color: var(--brand-dark); line-height: 1.5; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* ================= COMPACT HEADER ================= */
+        .compact-header { background: #fff; padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.04); }
+        .brand-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo-icon { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .logo-icon svg { width: 100%; height: 100%; }
+        .brand-text-block { display: flex; flex-direction: column; line-height: 1.1; }
+        .brand-text-top { font-size: 0.85rem; font-weight: 800; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+        .brand-text-bottom { font-size: 1.5rem; font-weight: 900; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 1px; }
+
+        @media(max-width: 480px) { 
+            .compact-header { padding: 12px 14px; } 
+            .logo-icon { width: 35px; height: 35px; }
+            .brand-text-top { font-size: 0.65rem; }
+            .brand-text-bottom { font-size: 1.2rem; }
+        }
+
+        /* ================= LAYOUT GRID ================= */
+        .builder-container { flex: 1; width: 100%; max-width: 1400px; margin: 30px auto; padding: 0 16px; display: grid; grid-template-columns: 1fr; gap: 40px; }
+        @media(min-width: 1024px) { .builder-container { grid-template-columns: 550px 1fr; } }
+
+        /* ================= LEFT: WIZARD FORM ================= */
+        .form-panel { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-height: calc(100vh - 120px); overflow-y: auto; display: flex; flex-direction: column; }
+        .form-panel::-webkit-scrollbar { width: 6px; }
+        .form-panel::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .form-panel::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+        .panel-title { font-size: 1.25rem; font-weight: 900; margin-bottom: 5px; text-align: center; }
+        .step-indicator { text-align: center; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 25px; }
+        
+        .form-step { display: none; animation: fadeIn 0.3s; flex-grow: 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ================= PREMIUM PATH SELECTION GATE ================= */
+        .step-1-wrapper { display: flex; flex-direction: column; justify-content: center; min-height: 50vh; }
+        .welcome-header { text-align: center; margin-bottom: 30px; }
+        .welcome-header h2 { font-size: 1.8rem; font-weight: 900; color: var(--brand-dark); margin-bottom: 8px; line-height: 1.2;}
+        .welcome-header p { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+        
+        .path-selection-cards { display: flex; flex-direction: column; gap: 16px; }
+        
+        .path-card { 
+            background: #fff; 
+            border: 2px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            text-align: left;
+        }
+        .path-card:hover, .path-card:active { 
+            border-color: var(--brand-dark); 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06); 
+            transform: translateY(-2px); 
+        }
+        .path-icon { font-size: 2.5rem; line-height: 1; }
+        .path-text { flex: 1; }
+        .path-title { font-size: 1.1rem; font-weight: 800; color: var(--brand-dark); margin-bottom: 4px; }
+        .path-desc { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;}
+
+        @media(min-width: 768px) { 
+            .path-selection-cards { flex-direction: row; } 
+            .path-card { flex: 1; flex-direction: column; text-align: center; padding: 40px 20px; gap: 15px; } 
+        }
+
+        @media(max-width: 480px) {
+            .builder-container { margin: 15px auto; padding: 0 12px; gap: 20px; }
+            .form-panel { padding: 20px 15px; }
+            .step-1-wrapper { min-height: auto; padding-bottom: 10px; }
+            .welcome-header { margin-bottom: 20px; }
+            .welcome-header h2 { font-size: 1.5rem; margin-bottom: 4px; }
+            .path-selection-cards { gap: 12px; }
+            .path-card { padding: 15px 12px; gap: 15px; }
+            .path-icon { font-size: 2.2rem; }
+            .path-title { font-size: 1rem; }
+        }
+
+        .section-label { font-size: 1.05rem; font-weight: 900; color: var(--brand-dark); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; border-bottom: 2px solid var(--brand-dark); padding-bottom: 8px;}
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; justify-content: flex-start; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.8rem; color: #4B5563; text-transform: uppercase; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff; transition: border-color 0.15s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--brand-dark); box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        
+        .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .chip { background: #F3F4F6; color: #4B5563; font-size: 0.75rem; font-weight: 600; padding: 5px 12px; border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; user-select: none; }
+        .chip:hover { background: var(--brand-dark); color: #fff; border-color: var(--brand-dark); }
+        .quick-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .quick-chip { background: #E5E7EB; color: var(--brand-dark); border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .quick-chip:hover { background: var(--brand-dark); color: #fff; }
+
+        .dynamic-block { background: var(--brand-light); border: 1px solid var(--border-color); padding: 20px 15px 15px; border-radius: 10px; margin-bottom: 15px; position: relative; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9CA3AF; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: color 0.2s;}
+        .remove-btn:hover { color: var(--brand-dark); }
+        
+        .add-btn { background: #E5E7EB; color: var(--brand-dark); border: none; padding: 12px 15px; border-radius: 8px; font-weight: 800; font-size: 0.85rem; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; display: flex; justify-content: center; gap: 8px; align-items: center; }
+        .add-btn:hover { background: #D1D5DB; }
+        .add-bullet-btn { background: #fff; border: 1px dashed var(--brand-dark); color: var(--brand-dark); font-weight: 700; font-size: 0.85rem; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 5px; transition: background 0.2s; }
+        .add-bullet-btn:hover { background: #F3F4F6; }
+        
+        .bullet-engine { background: #fff; border: 1px solid #E5E7EB; padding: 15px; border-radius: 8px; margin-bottom: 10px; position: relative; }
+        .bullet-engine .remove-bullet { position: absolute; top: 8px; right: 10px; font-size: 0.7rem; color: #9CA3AF; cursor: pointer; background: none; border: none; font-weight: bold;}
+        .bullet-engine .remove-bullet:hover { color: var(--brand-dark); }
+        .bullet-engine label { font-size: 0.75rem; text-transform: none; font-weight: 600; color: #374151; margin-bottom: 4px; }
+        .bullet-engine input, .bullet-engine select { padding: 10px; font-size: 0.9rem; margin-bottom: 10px; }
+        .bullet-engine .form-group { margin-bottom: 0; }
+        
+        .step-nav { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .nav-btn { padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-prev { background: #E5E7EB; color: var(--brand-dark); }
+        .btn-prev:hover { background: #D1D5DB; }
+        .btn-next { background: var(--brand-dark); color: #fff; }
+        .btn-next:hover { background: #374151; }
+
+        /* ================= RIGHT: ACTIONS & PREVIEW ================= */
+        .preview-panel { display: flex; flex-direction: column; gap: 25px; }
+        .action-card { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 12px; }
+        
+        .preview-btn { background: #fff; color: var(--brand-dark); border: 2px solid var(--brand-dark); padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1.05rem; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .download-btn { background: var(--brand-dark); color: #fff; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1.05rem; cursor: pointer; transition: background 0.2s, transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .wa-btn { background: var(--wa-green); color: #fff; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1.05rem; transition: transform 0.1s, background 0.2s; text-align: center; }
+        
+        .preview-btn:hover { background: #F3F4F6; }
+        .preview-btn:active { transform: scale(0.98); }
+        .download-btn:hover { background: #374151; }
+        .download-btn:active { transform: scale(0.98); }
+        .wa-btn:hover { background: #1EBE5A; }
+        .wa-btn:active { transform: scale(0.98); }
+
+        @media(max-width: 480px) {
+            .wa-btn { font-size: 0.95rem; padding: 14px; }
+        }
+
+        /* THE RESUME PAPER (1:1 EXACT MATCH) */
+        .resume-paper-wrapper { background: #fff; padding: 40px 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-radius: 4px; overflow-x: auto; display: none; }
+        .resume-paper { font-family: 'Times New Roman', Times, serif; color: #000; line-height: 1.5; min-height: 800px; max-width: 850px; margin: 0 auto; text-align: left; background: #fff; }
+        
+        .res-name { font-size: 15pt; font-weight: bold; text-align: center; margin-bottom: 4px; text-transform: uppercase; }
+        .res-target-title { font-size: 11pt; font-weight: bold; text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; color: #333; }
+        .res-contact-line { text-align: center; font-size: 10.5pt; margin-bottom: 4px; }
+        .res-contact-line a { color: #000; text-decoration: none; }
+        
+        .res-section-title { font-size: 11pt; font-weight: bold; text-transform: uppercase; margin-top: 16px; margin-bottom: 8px; border-bottom: 1.5px solid #000; padding-bottom: 2px; }
+        .res-text { font-size: 10.5pt; margin-bottom: 8px; text-align: justify; }
+        
+        .comp-row { display: flex; align-items: flex-start; margin-bottom: 6px; font-size: 10.5pt; }
+        .comp-cat { font-weight: bold; width: 180px; flex-shrink: 0; }
+        .comp-val { flex-grow: 1; }
+        
+        .res-item-row-1 { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5pt; margin-top: 10px; }
+        .res-item-row-2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5pt; margin-bottom: 4px; }
+        .res-company, .res-role { font-weight: bold; }
+        .res-loc, .res-date { font-weight: normal; }
+        
+        .res-bullets { padding-left: 18px; font-size: 10.5pt; margin-bottom: 12px; }
+        .res-bullets li { margin-bottom: 3px; list-style-type: disc; }
+
+        /* ==================== FOOTER ==================== */
+        .site-footer { background-color: #fff; border-top: 1px solid var(--border-color); padding: 30px 20px; margin-top: auto; }
+        .footer-container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .footer-left { display: flex; flex-direction: column; gap: 8px; }
+        .footer-address { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; margin-top: 4px; }
+        
+        .footer-phones { display: flex; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
+        .footer-phone { font-size: 0.95rem; font-weight: 700; color: var(--brand-dark); text-decoration: none; transition: color 0.2s; }
+        .footer-phone:hover { color: #4B5563; }
+        
+        .footer-right { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; }
+        .footer-copyright { font-size: 0.85rem; color: #9CA3AF; margin-top: 5px; }
+        @media(min-width: 768px) { .footer-container { flex-direction: row; justify-content: space-between; align-items: flex-end; } .footer-right { text-align: right; } }
+
+        /* ================= PRINT CSS ================= */
+        @media print {
+            @page { margin: 1.5cm; }
+            body { background: #fff; }
+            body * { visibility: hidden; }
+            #resumePreviewWrapper { display: block !important; padding: 0; box-shadow: none; }
+            #resumePaper, #resumePaper * { visibility: visible; }
+            #resumePaper { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; margin: 0; padding: 0; }
+            .compact-header, .form-panel, .action-card, footer { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="compact-header">
+        <a href="index.html" class="brand-logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="var(--brand-dark)">
+                    <path d="M12 2C10.3 2 8.9 3.4 8.9 5.1C8.9 6.8 10.3 8.2 12 8.2C13.7 8.2 15.1 6.8 15.1 5.1C15.1 3.4 13.7 2 12 2ZM8.4 9.1C6 9.1 4 11.1 4 13.5V20H7.1V13.8L9.1 20H14.9L16.9 13.8V20H20V13.5C20 11.1 18 9.1 15.6 9.1H12.9V13.1L12 11.3L11.1 13.1V9.1H8.4ZM13.8 15.6H20V22H13.8V15.6ZM14.7 16.4V17.3H19.1V16.4H14.7ZM14.7 18.2V19.1H19.1V18.2H14.7Z"/>
+                </svg>
+            </div>
+            <div class="brand-text-block">
+                <span class="brand-text-top">The Employment</span>
+                <span class="brand-text-bottom">Express</span>
+            </div>
+        </a>
+    </header>
+
+    <div class="builder-container">
+        
+        <!-- LEFT: WIZARD INPUT FORM -->
+        <div class="form-panel" id="formPanel">
+            
+            <!-- STEP 1: The Segmentation Gate -->
+            <div class="form-step step-1-wrapper" id="step-1">
+                <div class="welcome-header">
+                    <h2>Let's build your resume.</h2>
+                    <p>To get started, which best describes you?</p>
+                </div>
+                
+                <div class="path-selection-cards">
+                    <div class="path-card" onclick="selectPath('fresh')">
+                        <div class="path-icon">🎓</div>
+                        <div class="path-text">
+                            <div class="path-title">I am a Fresher / Student</div>
+                            <div class="path-desc">Looking for my first job or internship.</div>
+                        </div>
+                    </div>
+                    <div class="path-card" onclick="selectPath('exp')">
+                        <div class="path-icon">💼</div>
+                        <div class="path-text">
+                            <div class="path-title">I have Work Experience</div>
+                            <div class="path-desc">I have worked in one or more professional roles.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="wizardHeader" style="display: none;">
+                <h2 class="panel-title">Build Your Resume</h2>
+                <div class="step-indicator" id="stepCounter">Step 2 of 7</div>
+            </div>
+            
+            <!-- STEP 2: Personal Details & Target Job -->
+            <div class="form-step" id="step-2">
+                <div class="section-label">Personal Information</div>
+                <div class="form-group"><label>Full Name</label><input type="text" id="inpName" placeholder="e.g. xxxx xxxx"></div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Target Job Title</label>
+                        <input type="text" id="inpTargetJob" list="jobTitles" placeholder="e.g. Sales Executive">
+                        <datalist id="jobTitles">
+                            <option value="Sales Executive">
+                            <option value="Accountant">
+                            <option value="Back Office Admin">
+                            <option value="Customer Support Executive">
+                            <option value="Marketing Manager">
+                            <option value="Software Developer">
+                            <option value="HR Executive">
+                        </datalist>
+                    </div>
+                    <div class="form-group" id="totalExpGroup">
+                        <label>Total Experience</label>
+                        <select id="inpTotalExp">
+                            <option value="" disabled selected>Select...</option>
+                            <option value="Fresher">Fresher (0 Years)</option>
+                            <option value="0 - 1 Year">0 - 1 Year</option>
+                            <option value="1 - 3 Years">1 - 3 Years</option>
+                            <option value="3 - 5 Years">3 - 5 Years</option>
+                            <option value="5 - 10 Years">5 - 10 Years</option>
+                            <option value="10+ Years">10+ Years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group"><label>Complete Address</label><input type="text" id="inpAddress" placeholder="e.g. Flat xxx, xxxx Road, xxxx, xxxx xxxxxx"></div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Phone</label><input type="tel" id="inpPhone" placeholder="e.g. +91 xxxxx xxxxx"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="inpEmail" placeholder="e.g. xxxx@email.com"></div>
+                </div>
+                <div class="form-group"><label>LinkedIn URL (Optional)</label><input type="text" id="inpLink" placeholder="e.g. linkedin.com/in/xxxx"></div>
+            </div>
+
+            <!-- STEP 3: Summary -->
+            <div class="form-step" id="step-3">
+                <div class="section-label">Professional Summary</div>
+                
+                <label style="font-size: 0.8rem; font-weight: 700; color: #4B5563; margin-bottom: 8px; display: block;">Quick Fill Templates (Click to apply):</label>
+                <div class="quick-chips">
+                    <button class="quick-chip" onclick="fillSummary('sales')">📈 Sales & Marketing</button>
+                    <button class="quick-chip" onclick="fillSummary('finance')">💰 Accounts & Finance</button>
+                    <button class="quick-chip" onclick="fillSummary('admin')">📋 Admin & Operations</button>
+                    <button class="quick-chip" onclick="fillSummary('fresher')">🎓 Motivated Fresher</button>
+                </div>
+
+                <div class="form-group">
+                    <textarea id="inpSummary" placeholder="Click a template above or type your own professional summary here..." style="min-height: 120px;"></textarea>
+                </div>
+            </div>
+
+            <!-- STEP 4: Core Competencies -->
+            <div class="form-step" id="step-4">
+                <div class="section-label">Core Competencies</div>
+                <div id="competencyContainer"></div>
+                <button class="add-btn" onclick="addCompetency('', '')">+ Add Skill Category</button>
+            </div>
+
+            <!-- STEP 5: Experience -->
+            <div class="form-step" id="step-5">
+                <div class="section-label exp-section-title">Work Experience</div>
+                <div id="experienceContainer"></div>
+                <button class="add-btn" onclick="addExperience()">+ Add Experience</button>
+            </div>
+
+            <!-- STEP 6: Education -->
+            <div class="form-step" id="step-6">
+                <div class="section-label">Education</div>
+                <div id="educationContainer"></div>
+                <button class="add-btn" onclick="addEducation()">+ Add Education</button>
+            </div>
+            
+            <!-- STEP 7: Languages -->
+            <div class="form-step" id="step-7">
+                <div class="section-label">Languages</div>
+                <div id="languageContainer"></div>
+                <button class="add-btn" onclick="addLanguage()">+ Add Language</button>
+            </div>
+
+            <!-- WIZARD NAVIGATION -->
+            <div class="step-nav" id="stepNav" style="display: none;">
+                <button class="nav-btn btn-prev" id="btnPrev" onclick="prevStep()">← Previous</button>
+                <button class="nav-btn btn-next" id="btnNext" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+
+        <!-- RIGHT: ACTIONS & PREVIEW -->
+        <div class="preview-panel">
+            
+            <div class="action-card">
+                <a href="https://whatsapp.com/channel/0029Vb95jUBBVJkvPuyslk3h" class="wa-btn" target="_blank">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    Join our WhatsApp Channel for Daily Job Updates
+                </a>
+
+                <button class="preview-btn" onclick="togglePreview()" id="previewBtnTop" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span id="previewBtnText">Preview Resume</span>
+                </button>
+                
+                <button class="download-btn" id="downloadBtn" style="display: none;" onclick="window.print(); forceSaveToDB();">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download Resume
+                </button>
+            </div>
+
+            <!-- LIVE RESUME PAPER -->
+            <div class="resume-paper-wrapper" id="resumePreviewWrapper">
+                <div class="resume-paper" id="resumePaper">
+                    <div id="outHeader"></div>
+                    
+                    <div id="secSummary" style="display:none;">
+                        <div class="res-section-title">Professional Summary</div>
+                        <div class="res-text" id="outSummary"></div>
+                    </div>
+
+                    <div id="secSkills" style="display:none;">
+                        <div class="res-section-title">Core Competencies</div>
+                        <div id="outSkillsList"></div>
+                    </div>
+
+                    <div id="secExp" style="display:none;">
+                        <div class="res-section-title exp-section-title-preview">Professional Experience</div>
+                        <div id="outExpList"></div>
+                    </div>
+
+                    <div id="secEdu" style="display:none;">
+                        <div class="res-section-title">Education & Credentials</div>
+                        <div id="outEduList"></div>
+                    </div>
+
+                    <div id="secLangs" style="display:none;">
+                        <div class="res-section-title">Languages</div>
+                        <ul class="res-bullets" id="outLangs"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <a href="index.html" class="brand-logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="var(--brand-dark)">
+                            <path d="M12 2C10.3 2 8.9 3.4 8.9 5.1C8.9 6.8 10.3 8.2 12 8.2C13.7 8.2 15.1 6.8 15.1 5.1C15.1 3.4 13.7 2 12 2ZM8.4 9.1C6 9.1 4 11.1 4 13.5V20H7.1V13.8L9.1 20H14.9L16.9 13.8V20H20V13.5C20 11.1 18 9.1 15.6 9.1H12.9V13.1L12 11.3L11.1 13.1V9.1H8.4ZM13.8 15.6H20V22H13.8V15.6ZM14.7 16.4V17.3H19.1V16.4H14.7ZM14.7 18.2V19.1H19.1V18.2H14.7Z"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text-block">
+                        <span class="brand-text-top">The Employment</span>
+                        <span class="brand-text-bottom">Express</span>
+                    </div>
+                </a>
+                <p class="footer-address">2nd floor, Crystal Conclave, Hem Baruah Rd, opposite to MAAC, Pan Bazaar, Guwahati, Assam 781001</p>
+                <div class="footer-phones">
+                    <a href="tel:+919678951896" class="footer-phone">📞 +91 96789 51896</a>
+                    <a href="tel:+919774295636" class="footer-phone">📞 +91 97742 95636</a>
+                </div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-copyright">&copy; 2026 The Employment Express. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // QUICK FILL ENGINE & SUGGESTION CHIPS
+        // ==========================================
+        const templates = {
+            sales: "Results-driven Sales Professional with a proven track record of exceeding revenue targets and expanding client bases. Adept at B2B/B2C negotiations, lead generation, and building long-term customer relationships. Highly skilled in identifying market opportunities and delivering tailored solutions to maximize business growth.",
+            finance: "Detail-oriented Finance Professional with comprehensive experience in accounting, reconciliation, and financial reporting. Proven ability to ensure rigorous compliance with tax regulations while optimizing processes to reduce discrepancies. Adept at managing ledgers, preparing MIS reports, and providing actionable financial insights.",
+            admin: "Highly organized Administrative Professional with expertise in streamlining back-office operations, managing schedules, and coordinating cross-functional communications. Strong track record of improving office efficiency, handling sensitive data, and ensuring seamless daily workflows in fast-paced environments.",
+            fresher: "Highly motivated and detail-oriented graduate eager to leverage academic knowledge and internship experience in a professional environment. A quick learner with strong analytical, communication, and problem-solving skills, committed to adding value to the team and continuously developing industry expertise."
+        };
+
+        function fillSummary(type) {
+            document.getElementById('inpSummary').value = templates[type];
+            updateResume();
+        }
+
+        function setStatic(id, val) {
+            document.getElementById(id).value = val;
+            updateResume();
+        }
+
+        function setDynamic(element, inputClass, append) {
+            const group = element.closest('.form-group');
+            const input = group.querySelector('.' + inputClass);
+            const val = element.innerText.replace('+ ', ''); 
+
+            if(append) {
+                let current = input.value.trim();
+                if(current === '') {
+                    input.value = val;
+                } else {
+                    if(!current.includes(val)) {
+                        input.value = current + ', ' + val;
+                    }
+                }
+            } else {
+                input.value = val;
+            }
+            updateResume();
+        }
+
+        // ==========================================
+        // WIZARD NAVIGATION & PATH SELECTION
+        // ==========================================
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        function selectPath(path) {
+            const isFresher = (path === 'fresh');
+            
+            // Re-label headers depending on path
+            document.querySelector('.exp-section-title').innerText = isFresher ? "Projects & Internships" : "Professional Experience";
+            document.querySelectorAll('.role-label').forEach(lbl => lbl.innerText = isFresher ? "Project Role / Position" : "Job Title");
+            document.querySelectorAll('.comp-label').forEach(lbl => lbl.innerText = isFresher ? "Organization / Institution" : "Company Name");
+            document.querySelector('.exp-section-title-preview').innerText = isFresher ? "Projects & Internships" : "Professional Experience";
+
+            // Handle the "Total Experience" dropdown in Step 2
+            const expDropdown = document.getElementById('inpTotalExp');
+            if (isFresher) {
+                expDropdown.value = "Fresher";
+                document.getElementById('totalExpGroup').style.display = 'none'; 
+            } else {
+                if(expDropdown.value === "Fresher") expDropdown.value = "";
+                document.getElementById('totalExpGroup').style.display = 'flex';
+            }
+            
+            updateResume();
+            nextStep(); // Auto-advance!
+        }
+
+        function updateStepUI() {
+            document.querySelectorAll('.form-step').forEach((el, index) => {
+                if (index + 1 === currentStep) {
+                    el.style.display = (index === 0) ? 'flex' : 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            
+            const displayStep = currentStep - 1;
+            const displayTotal = totalSteps - 1;
+            
+            if(currentStep > 1) {
+                document.getElementById('stepCounter').innerText = `Step ${displayStep} of ${displayTotal}`;
+                document.getElementById('wizardHeader').style.display = 'block';
+                document.getElementById('stepNav').style.display = 'flex';
+                document.getElementById('previewBtnTop').style.display = 'flex';
+            } else {
+                document.getElementById('wizardHeader').style.display = 'none';
+                document.getElementById('stepNav').style.display = 'none';
+                document.getElementById('previewBtnTop').style.display = 'none';
+            }
+
+            document.getElementById('btnPrev').style.visibility = currentStep === 2 ? 'hidden' : 'visible';
+            
+            const btnNext = document.getElementById('btnNext');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            if (currentStep === totalSteps) {
+                btnNext.style.display = 'none';
+                downloadBtn.style.display = 'flex'; 
+            } else {
+                btnNext.style.display = 'block';
+                downloadBtn.style.display = 'none';
+            }
+        }
+
+        function nextStep() { if(currentStep < totalSteps) { currentStep++; updateStepUI(); document.getElementById('formPanel').scrollTop = 0; } }
+        function prevStep() { if(currentStep > 1) { currentStep--; updateStepUI(); document.getElementById('formPanel').scrollTop = 0; } }
+        updateStepUI();
+
+        // ==========================================
+        // GOOGLE SHEETS DB HOOK & SESSION ID
+        // ==========================================
+        const RESUME_DB_URL = "https://script.google.com/macros/s/AKfycbxaBudFefOaSeJvNWn2Pk24HhIKV8obC1irvHt2ZSGkoNmik0UpDOjsOpAMBSCDqL2T4w/exec"; 
+        const SESSION_ID = 'sess_' + Math.random().toString(36).substr(2, 9);
+        let autoSaveTimer;
+
+        document.getElementById('formPanel').addEventListener('input', (e) => {
+            updateResume(e);
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => { forceSaveToDB(); }, 2000);
+        });
+
+        function forceSaveToDB() {
+            const payload = {
+                sessionId: SESSION_ID,
+                name: document.getElementById('inpName').value,
+                targetTitle: document.getElementById('inpTargetJob').value,
+                totalExp: document.getElementById('inpTotalExp').value,
+                phone: document.getElementById('inpPhone').value,
+                email: document.getElementById('inpEmail').value,
+                location: document.getElementById('inpAddress').value,
+                linkedin: document.getElementById('inpLink').value,
+                summary: document.getElementById('inpSummary').value,
+                skills: Array.from(document.querySelectorAll('.comp-block')).map(b => b.querySelector('.c-cat').value + ": " + b.querySelector('.c-skills').value).join(' | '),
+                languages: Array.from(document.querySelectorAll('.lang-block')).map(b => b.querySelector('.l-name').value).join(', ')
+            };
+
+            if(payload.name || payload.email || payload.phone) {
+                fetch(RESUME_DB_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .catch(e => console.log("Auto-save running quietly..."));
+            }
+        }
+
+        // ==========================================
+        // UI & PREVIEW LOGIC
+        // ==========================================
+        function togglePreview() {
+            const wrapper = document.getElementById('resumePreviewWrapper');
+            const btnText = document.getElementById('previewBtnText');
+            if (wrapper.style.display === 'none' || wrapper.style.display === '') {
+                wrapper.style.display = 'block';
+                btnText.innerText = 'Hide Preview';
+                if(window.innerWidth < 1024) wrapper.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                wrapper.style.display = 'none';
+                btnText.innerText = 'Preview Resume';
+            }
+        }
+
+        let compIndex = 0;
+        let expIndex = 0;
+        let eduIndex = 0;
+        let langIndex = 0;
+
+        function addCompetency(prefillCat = "", prefillSkills = "") {
+            const html = `
+                <div class="dynamic-block comp-block" id="comp-${compIndex}">
+                    <button class="remove-btn" onclick="removeBlock('comp-${compIndex}')">✖</button>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="c-cat">
+                            <option value="Domain Skills">Domain Skills</option>
+                            <option value="Technical Skills">Technical Skills</option>
+                            <option value="Soft Skills">Soft Skills</option>
+                            <option value="Tools & Software">Tools & Software</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Skills</label>
+                        <input type="text" class="c-skills" placeholder="e.g. Data Analysis, Client Relations, Excel" value="${prefillSkills}">
+                        <div class="chip-group">
+                            <span class="chip" onclick="setDynamic(this, 'c-skills', true)">+ MS Excel</span>
+                            <span class="chip" onclick="setDynamic(this, 'c-skills', true)">+ Tally Prime</span>
+                            <span class="chip" onclick="setDynamic(this, 'c-skills', true)">+ B2B Sales</span>
+                            <span class="chip" onclick="setDynamic(this, 'c-skills', true)">+ Data Entry</span>
+                            <span class="chip" onclick="setDynamic(this, 'c-skills', true)">+ GST</span>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('competencyContainer').insertAdjacentHTML('beforeend', html);
+            if(prefillCat) {
+                document.getElementById(`comp-${compIndex}`).querySelector('.c-cat').value = prefillCat;
+            }
+            compIndex++;
+            updateResume();
+        }
+
+        function addExperience() {
+            const isFresher = document.getElementById('inpTotalExp').value === "Fresher";
+            const roleText = isFresher ? "Project Role / Position" : "Job Title";
+            const compText = isFresher ? "Organization / Institution" : "Company Name";
+
+            const html = `
+                <div class="dynamic-block exp-block" id="exp-${expIndex}">
+                    <button class="remove-btn" onclick="removeBlock('exp-${expIndex}')">✖</button>
+                    <div class="grid-2">
+                        <div class="form-group"><label class="comp-label">${compText}</label><input type="text" class="e-comp" placeholder="e.g. xxxx & Associates"></div>
+                        <div class="form-group"><label>Location</label><input type="text" class="e-loc" placeholder="e.g. xxxx, Assam"></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="role-label">${roleText}</label>
+                            <input type="text" class="e-title" placeholder="e.g. xxxx Executive">
+                            <div class="chip-group">
+                                <span class="chip" onclick="setDynamic(this, 'e-title', false)">Sales Executive</span>
+                                <span class="chip" onclick="setDynamic(this, 'e-title', false)">Accountant</span>
+                                <span class="chip" onclick="setDynamic(this, 'e-title', false)">Intern</span>
+                            </div>
+                        </div>
+                        <div class="form-group"><label>Dates</label><input type="text" class="e-dates" placeholder="e.g. Aug 2023 - Present"></div>
+                    </div>
+                    
+                    <div class="section-label" style="font-size:0.85rem; margin-top:10px; margin-bottom:10px;">Impact-Driven Bullet Points</div>
+                    <div class="achievements-wrapper" id="achieve-wrap-${expIndex}"></div>
+                    <button class="add-bullet-btn" onclick="addBullet(${expIndex})">+ Add Bullet Point</button>
+                </div>`;
+            document.getElementById('experienceContainer').insertAdjacentHTML('beforeend', html);
+            addBullet(expIndex); 
+            expIndex++;
+            updateResume();
+        }
+
+        function addBullet(parentId) {
+            const wrapper = document.getElementById(`achieve-wrap-${parentId}`);
+            const html = `
+                <div class="bullet-engine">
+                    <button class="remove-bullet" onclick="this.parentElement.remove(); updateResume();">✖</button>
+                    <div class="form-group">
+                        <label>1. Action (Select Power Verb)</label>
+                        <select class="b-action">
+                            <option value="" disabled selected>Select an action...</option>
+                            <option value="Spearheaded">Spearheaded</option>
+                            <option value="Managed">Managed</option>
+                            <option value="Developed">Developed</option>
+                            <option value="Streamlined">Streamlined</option>
+                            <option value="Orchestrated">Orchestrated</option>
+                            <option value="Executed">Executed</option>
+                            <option value="Assisted">Assisted</option>
+                            <option value="Increased">Increased</option>
+                            <option value="Handled">Handled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>2. Task / Method</label>
+                        <input type="text" class="b-tool" placeholder="e.g. statutory audits using Tally">
+                        <div class="chip-group">
+                            <span class="chip" onclick="setDynamic(this, 'b-tool', false)">using MS Excel</span>
+                            <span class="chip" onclick="setDynamic(this, 'b-tool', false)">using Tally Prime</span>
+                            <span class="chip" onclick="setDynamic(this, 'b-tool', false)">via Email Marketing</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>3. Result (Add Numbers)</label>
+                        <input type="text" class="b-result" placeholder="e.g. ensuring compliance for 15+ clients">
+                        <div class="chip-group">
+                            <span class="chip" onclick="setDynamic(this, 'b-result', false)">by 20%</span>
+                            <span class="chip" onclick="setDynamic(this, 'b-result', false)">for 15+ clients</span>
+                            <span class="chip" onclick="setDynamic(this, 'b-result', false)">with 100% accuracy</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            wrapper.insertAdjacentHTML('beforeend', html);
+        }
+
+        function addEducation() {
+            const html = `
+                <div class="dynamic-block edu-block" id="edu-${eduIndex}">
+                    <button class="remove-btn" onclick="removeBlock('edu-${eduIndex}')">✖</button>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Degree Level</label>
+                            <select class="ed-level">
+                                <option value="" disabled selected>Select Level...</option>
+                                <option value="Post Graduation (PG)">Post Graduation (PG)</option>
+                                <option value="Graduation (UG)">Graduation (UG)</option>
+                                <option value="Diploma/Certification">Diploma/Certification</option>
+                                <option value="12th Standard">12th Standard</option>
+                                <option value="10th Standard">10th Standard</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Field of Study / Stream</label>
+                            <input type="text" class="ed-field" placeholder="e.g. Accountancy Honors / Commerce">
+                            <div class="chip-group">
+                                <span class="chip" onclick="setDynamic(this, 'ed-field', false)">Commerce</span>
+                                <span class="chip" onclick="setDynamic(this, 'ed-field', false)">Arts</span>
+                                <span class="chip" onclick="setDynamic(this, 'ed-field', false)">Science</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Institution / Board</label>
+                            <input type="text" class="ed-inst" placeholder="e.g. xxxx University / CBSE">
+                        </div>
+                        <div class="form-group"><label>Passing Month/Year</label><input type="text" class="ed-year" placeholder="e.g. xxxx 2026"></div>
+                    </div>
+                    <div class="form-group"><label>Percentage / CGPA (Optional)</label><textarea class="ed-bullets" placeholder="e.g. Cleared exams in first attempt / 8.5 CGPA"></textarea></div>
+                </div>`;
+            document.getElementById('educationContainer').insertAdjacentHTML('beforeend', html);
+            eduIndex++;
+            updateResume();
+        }
+
+        function addLanguage() {
+            const html = `
+                <div class="dynamic-block lang-block" id="lang-${langIndex}">
+                    <button class="remove-btn" onclick="removeBlock('lang-${langIndex}')">✖</button>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Language</label>
+                            <input type="text" class="l-name" list="langList" placeholder="e.g. English">
+                            <datalist id="langList">
+                                <option value="English">
+                                <option value="Assamese">
+                                <option value="Hindi">
+                                <option value="Bengali">
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label>Proficiency</label>
+                            <select class="l-prof">
+                                <option value="" disabled selected>Select Level...</option>
+                                <option value="Native">Native</option>
+                                <option value="Fluent">Fluent</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Basic">Basic</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('languageContainer').insertAdjacentHTML('beforeend', html);
+            langIndex++;
+            updateResume();
+        }
+
+        function removeBlock(id) {
+            document.getElementById(id).remove();
+            updateResume();
+        }
+
+        function updateResume(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            // 1. Header
+            const name = document.getElementById('inpName').value;
+            const targetTitle = document.getElementById('inpTargetJob').value;
+            const totalExp = document.getElementById('inpTotalExp').value;
+            
+            const address = document.getElementById('inpAddress').value;
+            const phone = document.getElementById('inpPhone').value;
+            const email = document.getElementById('inpEmail').value;
+            const link = document.getElementById('inpLink').value;
+
+            let headerHTML = '';
+            if (name) headerHTML += `<div class="res-name">${name}</div>`;
+            
+            if (targetTitle) {
+                headerHTML += `<div class="res-target-title">${targetTitle}${totalExp && totalExp !== 'Fresher' ? ` | ${totalExp}` : ''}</div>`;
+            } else if (totalExp && totalExp !== 'Fresher') {
+                headerHTML += `<div class="res-target-title">${totalExp}</div>`;
+            }
+
+            if (address) headerHTML += `<div class="res-contact-line">${address}</div>`;
+            
+            let bottomLine = [];
+            if (phone) bottomLine.push(phone);
+            if (email) bottomLine.push(email);
+            if (link) bottomLine.push(link);
+            if (bottomLine.length > 0) headerHTML += `<div class="res-contact-line">${bottomLine.join(' &nbsp;|&nbsp; ')}</div>`;
+            
+            document.getElementById('outHeader').innerHTML = headerHTML;
+
+            // 2. Summary
+            const summary = document.getElementById('inpSummary').value;
+            document.getElementById('outSummary').innerText = summary;
+            document.getElementById('secSummary').style.display = summary ? 'block' : 'none';
+
+            // 3. Competencies
+            const compBlocks = document.querySelectorAll('.comp-block');
+            let compHTML = '';
+            compBlocks.forEach(block => {
+                const cat = block.querySelector('.c-cat').value;
+                const skills = block.querySelector('.c-skills').value;
+                if (cat || skills) {
+                    compHTML += `<div class="comp-row"><div class="comp-cat">${cat}</div><div class="comp-val">| ${skills}</div></div>`;
+                }
+            });
+            document.getElementById('outSkillsList').innerHTML = compHTML;
+            document.getElementById('secSkills').style.display = compHTML ? 'block' : 'none';
+
+            // 4. Experience 
+            const expBlocks = document.querySelectorAll('.exp-block');
+            let expHTML = '';
+            expBlocks.forEach(block => {
+                const title = block.querySelector('.e-title').value;
+                const comp = block.querySelector('.e-comp').value;
+                const loc = block.querySelector('.e-loc').value;
+                const dates = block.querySelector('.e-dates').value;
+                
+                const bulletEngines = document.querySelectorAll(`#${block.id} .bullet-engine`);
+                let bulletsHTML = '';
+                bulletEngines.forEach(be => {
+                    const act = be.querySelector('.b-action').value;
+                    const tool = be.querySelector('.b-tool').value.trim();
+                    const res = be.querySelector('.b-result').value.trim();
+                    
+                    let combined = act || '';
+                    if(tool) combined += ` ${tool}`;
+                    if(res) combined += ` ${res}`;
+                    
+                    if(combined.trim()) bulletsHTML += `<li>${combined.trim()}</li>`;
+                });
+
+                if (comp || title) {
+                    expHTML += `
+                        <div class="res-item-row-1">
+                            <span class="res-company">${comp}${comp && loc ? ' | ' : ''}${loc}</span>
+                        </div>
+                        <div class="res-item-row-2">
+                            <span class="res-role">${title}</span>
+                            <span class="res-date">${dates}</span>
+                        </div>
+                        ${bulletsHTML ? `<ul class="res-bullets">${bulletsHTML}</ul>` : ''}
+                    `;
+                }
+            });
+            document.getElementById('outExpList').innerHTML = expHTML;
+            document.getElementById('secExp').style.display = expHTML ? 'block' : 'none';
+
+            // 5. Education
+            const eduBlocks = document.querySelectorAll('.edu-block');
+            let eduHTML = '';
+            eduBlocks.forEach(block => {
+                const level = block.querySelector('.ed-level').value;
+                const field = block.querySelector('.ed-field').value;
+                const inst = block.querySelector('.ed-inst').value;
+                const year = block.querySelector('.ed-year').value;
+                const detailsText = block.querySelector('.ed-bullets').value;
+
+                let degreeText = (level && level !== 'Select Level...') ? level : '';
+                if(field) degreeText += (degreeText ? ' - ' : '') + field;
+
+                const bullets = detailsText.split('\n').filter(line => line.trim() !== '').map(line => `<li>${line.replace(/^[•\-\*]\s*/, '').trim()}</li>`).join('');
+
+                if (inst || degreeText) {
+                    eduHTML += `
+                        <div class="res-item-row-1">
+                            <span class="res-company">${inst}</span>
+                            <span class="res-date">${year}</span>
+                        </div>
+                        <div class="res-item-row-2">
+                            <span class="res-role">${degreeText}</span>
+                        </div>
+                        ${bullets ? `<ul class="res-bullets">${bullets}</ul>` : ''}
+                    `;
+                }
+            });
+            document.getElementById('outEduList').innerHTML = eduHTML;
+            document.getElementById('secEdu').style.display = eduHTML ? 'block' : 'none';
+
+            // 6. Languages
+            const langBlocks = document.querySelectorAll('.lang-block');
+            let langHTML = '';
+            langBlocks.forEach(block => {
+                const name = block.querySelector('.l-name').value;
+                const prof = block.querySelector('.l-prof').value;
+                
+                if (name) {
+                    let profText = (prof && prof !== 'Select Level...') ? ` - ${prof}` : '';
+                    langHTML += `<li>${name}${profText}</li>`;
+                }
+            });
+            
+            document.getElementById('outLangs').innerHTML = langHTML;
+            document.getElementById('secLangs').style.display = langHTML ? 'block' : 'none';
+        }
+
+        // Initialize First Blocks
+        addCompetency("Domain Skills", "");
+        addCompetency("Technical Skills", "");
+        addExperience();
+        addEducation();
+        addLanguage();
+        updateResume();
+
+    </script>
+</body>
+</html>
